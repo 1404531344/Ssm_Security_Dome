@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:security="http://www.springframework.org/schema/security"
+       xsi:schemaLocation="
+       http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.springframework.org/schema/security
+       http://www.springframework.org/schema/security/spring-security.xsd
+">
+<!--    密码加密-->
+    <bean class="org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder" id="bCryptPasswordEncoder"/>
+
+    <!--auto-config 自动加载security配置文件
+    use-expressions：使用spring的el表达式
+    -->
+    <security:http auto-config="true" use-expressions="true">
+
+        <!--      匿名访问 换自己的登录页面login。jsp-->
+                <security:intercept-url pattern="/login.jsp" access="permitAll() "/>
+        <!--        pattern="/**":拦截所有资源
+                   access="hasAnyRole('ROLE_USER')"： 只有这个角色可以访问
+        -->
+        <security:intercept-url pattern="/**" access="hasAnyRole('ROLE_USER')" />
+
+<!--                配置认证信息  跳转页面-->
+                <security:form-login login-page="/login.jsp"
+                                     login-processing-url="/login"
+                                     default-target-url="/home.jsp"
+                                     authentication-failure-url="/home.jsp"
+                />
+        <!--        注销-->
+                <security:logout logout-url="/logout"
+                                 logout-success-url="/login.jsp"/>
+
+        <!--        关闭  csrf拦截-->
+<!--                <security:csrf disabled="true"/>-->
+<!--              放开remember-me 功能-->
+        <security:remember-me token-validity-seconds="1200"
+               data-source-ref="dataSource" remember-me-parameter="remember-me" />
+
+<!--        权限访问失败的页面-->
+        <security:access-denied-handler error-page="/error.jsp"/>
+
+
+    </security:http>
+    <!--认证用户信息-->
+    <security:authentication-manager>
+<!--        数据库用户-->
+        <security:authentication-provider user-service-ref="tUserService">
+<!--        自定义的用户-->
+<!--        <security:authentication-provider>-->
+<!--            <security:user-service>-->
+<!--                &lt;!&ndash;&lt;!&ndash;        设置一个张三的账号 密码：123  noop：不加密   角色权限为：ROLE_USER &ndash;&gt;&ndash;&gt;-->
+<!--                <security:user name="zhangsan" authorities="ROLE_USER" password="{noop}123"></security:user>-->
+<!--                <security:user name="lisi" authorities="ROLE_USER" password="{noop}123456"></security:user>-->
+<!--            </security:user-service>-->
+
+<!--            密码加密-->
+            <security:password-encoder ref="bCryptPasswordEncoder"/>
+        </security:authentication-provider>
+    </security:authentication-manager>
+
+</beans>

@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="
+       http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.springframework.org/schema/context
+        http://www.springframework.org/schema/context/spring-context.xsd
+
+">
+
+    <!--    security 的配置文件-->
+    <import resource="classpath:spring-security.xml"></import>
+<!--    !&#45;&#45;    导入dn.properties&ndash;&gt;-->
+    <context:property-placeholder location="classpath:db.properties"/>
+
+    <!--    配置数据源-->
+    <bean id="dataSource" class="com.alibaba.druid.pool.DruidDataSource">
+        <property name="username" value="${uname}"/>
+        <property name="password" value="${upass}"/>
+        <property name="url" value="${url}"/>
+        <property name="driverClassName" value="${driver_class}"/>
+
+    </bean>
+
+    <!--    创建SqlsessionFactoro-->
+    <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <!--     引入数据源-->
+        <property name="dataSource" ref="dataSource"/>
+        <!--     引入mybatisConfig.xml配置文件-->
+        <property name="configLocation" value="classpath:mybatisConfig.xml"/>
+        <!--     引入mybatisConfig.xm映射文件(mapping.xml)-->
+        <property name="mapperLocations" value="classpath:mapper/*.xml"/>
+    </bean>
+    <!--关联dao接口-->
+    <bean id="scannerConfigurer" class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+        <property name="basePackage" value="com.fz.dao"/>
+    </bean>
+    <!-- 扫描Service -->
+    <context:component-scan base-package="com.fz.service" />
+
+
+
+</beans>
